@@ -108,28 +108,33 @@
                      * @param currentState
                      * @returns {*}
                      */
-                    function getDisplayName(currentState) {
-                        var interpolationContext;
-                        var propertyReference;
-                        var displayName;
+                       function getDisplayName(currentState) {
+                            var interpolationContext;
+                            var propertyReference;
+                            var displayName;
 
-                        if (!scope.displaynameProperty) {
-                            // if the displayname-property attribute was not specified, default to the state's name
-                            return currentState.name;
-                        }
-                        propertyReference = getObjectValue(scope.displaynameProperty, currentState);
+                            if (!scope.displaynameProperty) {
+                                // if the displayname-property attribute was not specified, default to the state's name
+                                return currentState.name;
+                            }
+                            propertyReference = getObjectValue(scope.displaynameProperty, currentState);
 
-                        if (propertyReference === false) {
-                            return false;
-                        } else if (typeof propertyReference === 'undefined') {
-                            return currentState.name;
-                        } else {
-                            // use the $interpolate service to handle any bindings in the propertyReference string.
-                            interpolationContext =  (typeof currentState.locals !== 'undefined') ? currentState.locals.globals : currentState;
-                            displayName = $interpolate(propertyReference)(interpolationContext);
-                            return displayName;
+                            if (propertyReference === false) {
+                                return false;
+                            } else if (typeof propertyReference === 'undefined') {
+                                return currentState.name;
+                            } else {
+                                // use the $interpolate service to handle any bindings in the propertyReference string.
+                                interpolationContext =  (typeof currentState.locals !== 'undefined') ? currentState.locals.globals : currentState;
+                                angular.forEach(interpolationContext.$stateParams, function(value, key){
+                                    if(!interpolationContext[key]){
+                                        interpolationContext[key] = value;
+                                    }
+                                });
+                                displayName = $interpolate(propertyReference)(interpolationContext);
+                                return displayName;
+                            }
                         }
-                    }
 
                     /**
                      * Given a string of the type 'object.property.property', traverse the given context (eg the current $state object) and return the
